@@ -6,7 +6,6 @@ import { galleryItems } from '@/lib/db/schema'
 import { and, desc, eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
-import { S3Client, ListObjectsV2Command, HeadObjectCommand } from '@aws-sdk/client-s3'
 
 async function requireAuth() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -104,61 +103,5 @@ export async function getGalleryStats() {
     totalItems: items.length,
     categories,
     lastUpload: items[0]?.createdAt || null,
-  }
-}
-
-export async function getS3StorageStats() {
-  try {
-    const s3Client = new S3Client({
-      region: process.env.AWS_REGION || 'us-east-1',
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-      },
-    })
-
-    const bucketName = process.env.AWS_S3_BUCKET || ''
-    if (!bucketName) {
-      return {
-        totalSize: 0,
-        totalSizeMB: 0,
-        totalFiles: 0,
-        error: 'Bucket não configurado',
-      }
-    }
-
-    const command = new ListObjectsV2Command({
-      Bucket: bucketName,
-    })
-
-    const response = await s3Client.send(command)
-    
-    let totalSize = 0
-    let totalFiles = 0
-
-    if (response.Contents) {
-      totalFiles = response.Contents.length
-      totalSize = response.Contents.reduce((sum, obj) => sum + (obj.Size || 0), 0)
-    }
-
-    const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2)
-    const totalSizeGB = (totalSize / (1024 * 1024 * 1024)).toFixed(2)
-
-    return {
-      totalSize,
-      totalSizeMB: parseFloat(totalSizeMB),
-      totalSizeGB: parseFloat(totalSizeGB),
-      totalFiles,
-      formatted: totalSize > 1024 * 1024 * 1024 ? `${totalSizeGB} GB` : `${totalSizeMB} MB`,
-    }
-  } catch (error) {
-    console.error('[v0] Erro ao calcular espaço S3:', error)
-    return {
-      totalSize: 0,
-      totalSizeMB: 0,
-      totalSizeGB: 0,
-      totalFiles: 0,
-      error: 'Erro ao calcular espaço',
-    }
   }
 }

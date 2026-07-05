@@ -1,19 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getGalleryStats, getS3StorageStats } from '@/app/actions/gallery'
-import { Image, FileText, Calendar, Database, HardDrive } from 'lucide-react'
+import { getGalleryStats } from '@/app/actions/gallery'
+import { Image, FileText, Calendar, Database } from 'lucide-react'
 
 export function StatsWidget() {
   const [stats, setStats] = useState<any>(null)
-  const [s3Stats, setS3Stats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([
-      getGalleryStats().then(setStats),
-      getS3StorageStats().then(setS3Stats)
-    ]).finally(() => setLoading(false))
+    getGalleryStats().then(setStats).finally(() => setLoading(false))
   }, [])
 
   if (loading) {
@@ -27,11 +23,10 @@ export function StatsWidget() {
     { label: 'Fotografias', value: stats.categories?.['Fotografias'] || 0, icon: FileText },
     { label: 'Documentos', value: stats.categories?.['Documentos'] || 0, icon: Database },
     { label: 'Desenhos', value: stats.categories?.['Desenhos'] || 0, icon: Calendar },
-    { label: 'Espaço S3', value: s3Stats?.formatted || '0 MB', icon: HardDrive, isString: true },
   ]
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-5">
+    <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
       {statsList.map((stat: any) => {
         const IconComponent = stat.icon
         return (
