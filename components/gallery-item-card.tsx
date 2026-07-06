@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import { useState } from "react"
 import type { GalleryItem } from "@/lib/db/schema"
 
 interface GalleryItemCardProps {
@@ -9,20 +10,34 @@ interface GalleryItemCardProps {
 }
 
 export function GalleryItemCard({ item, onSelect }: GalleryItemCardProps) {
+  const [isWide, setIsWide] = useState(false)
+
+  const handleLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget
+    if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+      const ratio = img.naturalWidth / img.naturalHeight
+      setIsWide(ratio > 1.5)
+    }
+  }
+
   return (
     <button
       type="button"
       onClick={() => onSelect(item)}
-      className="group mb-4 block w-full break-inside-avoid overflow-hidden rounded-lg border border-border bg-card text-left shadow-sm transition-shadow duration-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+      className={`group mb-4 block w-full break-inside-avoid overflow-hidden rounded-lg border border-border bg-card text-left shadow-sm transition-shadow duration-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 ${
+        isWide ? "sm:column-span-all" : ""
+      }`}
     >
-      <div className="relative w-full overflow-hidden" style={{ aspectRatio: "4/3" }}>
+      <div className="relative w-full overflow-hidden">
         <Image
           src={item.imageUrl}
           alt={item.title}
-          fill
+          width={800}
+          height={600}
           loading="lazy"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+          className="block w-full h-auto transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+          onLoad={handleLoad}
         />
       </div>
       <div className="px-4 py-3">
