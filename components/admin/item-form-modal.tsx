@@ -1,14 +1,13 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { X, Upload, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import type { GalleryItem } from '@/lib/db/schema'
 import { createGalleryItem, updateGalleryItem } from '@/app/actions/gallery'
+import { getCategories } from '@/app/actions/categories'
 import { useToast } from '@/hooks/use-toast'
 import { uploadFileSchema } from '@/lib/validation/upload'
-
-const CATEGORIES = ['Fotografias', 'Documentos', 'Desenhos', 'Mapas', 'Outros']
 
 interface ItemFormModalProps {
   item: GalleryItem | null
@@ -20,6 +19,7 @@ export function ItemFormModal({ item, onClose, onSaved }: ItemFormModalProps) {
   const isEditing = item !== null
   const toast = useToast()
 
+  const [categories, setCategories] = useState<string[]>([])
   const [title, setTitle] = useState(item?.title ?? '')
   const [category, setCategory] = useState(item?.category ?? '')
   const [description, setDescription] = useState(item?.description ?? '')
@@ -32,6 +32,12 @@ export function ItemFormModal({ item, onClose, onSaved }: ItemFormModalProps) {
   const [error, setError] = useState('')
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    getCategories().then((cats) => {
+      setCategories(cats.map((c) => c.name))
+    })
+  }, [])
 
   const handleFile = useCallback((file: File) => {
     setError('')
@@ -249,7 +255,7 @@ export function ItemFormModal({ item, onClose, onSaved }: ItemFormModalProps) {
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="">Selecione uma categoria</option>
-              {CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>

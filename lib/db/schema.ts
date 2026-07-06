@@ -97,6 +97,8 @@ export const passwordResetToken = pgTable('password_reset_tokens', {
   createdAt: timestamp('createdAt').notNull().defaultNow(),
 })
 
+export type User = typeof user.$inferSelect
+export type NewUser = typeof user.$inferInsert
 export type GalleryItem = typeof galleryItems.$inferSelect
 export type NewGalleryItem = typeof galleryItems.$inferInsert
 export type AuditLog = typeof auditLog.$inferSelect

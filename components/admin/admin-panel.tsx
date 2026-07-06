@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, Pencil, Trash2, LogOut, Image as ImageIcon, Users, History, Settings, Layers } from 'lucide-react'
 import Link from 'next/link'
 import type { GalleryItem } from '@/lib/db/schema'
 import { deleteGalleryItem } from '@/app/actions/gallery'
+import { getCategories } from '@/app/actions/categories'
 import { authClient } from '@/lib/auth-client'
 import { ItemFormModal } from './item-form-modal'
 import { Logo } from '@/components/logo'
@@ -15,8 +16,6 @@ import { useToast } from '@/hooks/use-toast'
 import { StatsWidget } from './stats-widget'
 import Image from 'next/image'
 
-const CATEGORIES = ['Fotografias', 'Documentos', 'Desenhos', 'Mapas', 'Outros']
-
 interface AdminPanelProps {
   items: GalleryItem[]
 }
@@ -25,12 +24,19 @@ export function AdminPanel({ items: initialItems }: AdminPanelProps) {
   const router = useRouter()
   const toast = useToast()
   const [items, setItems] = useState(initialItems)
+  const [categories, setCategories] = useState<string[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<GalleryItem | null>(null)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<GalleryItem | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [filterCategory, setFilterCategory] = useState<string>('Todos')
+
+  useEffect(() => {
+    getCategories().then((cats) => {
+      setCategories(cats.map((c) => c.name))
+    })
+  }, [])
 
   const filtered =
     filterCategory === 'Todos'
@@ -160,7 +166,7 @@ export function AdminPanel({ items: initialItems }: AdminPanelProps) {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {['Todos', ...CATEGORIES].map((cat) => (
+            {['Todos', ...categories].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setFilterCategory(cat)}

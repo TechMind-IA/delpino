@@ -6,9 +6,10 @@ import { deleteUser } from '@/app/actions/users'
 import { useToast } from '@/hooks/use-toast'
 import { Trash2, Plus } from 'lucide-react'
 import { CreateUserModal } from './create-user-modal'
+import type { User } from '@/lib/db/schema'
 
 interface UsersManagementProps {
-  initialUsers: any[]
+  initialUsers: User[]
 }
 
 export function UsersManagement({ initialUsers }: UsersManagementProps) {
@@ -32,14 +33,14 @@ export function UsersManagement({ initialUsers }: UsersManagementProps) {
     }
   }
 
-  function handleUserCreated(newUser: any) {
+  function handleUserCreated(newUser: User) {
     setUsers((prev) => [newUser, ...prev])
     setModalOpen(false)
     toast.success('Usuário criado com sucesso')
   }
 
-  const roleLabels = { admin: 'Admin', editor: 'Editor', viewer: 'Visualizador' }
-  const roleBadgeColor = {
+  const roleLabels: Record<string, string> = { admin: 'Admin', editor: 'Editor', viewer: 'Visualizador' }
+  const roleBadgeColor: Record<string, string> = {
     admin: 'bg-destructive/20 text-destructive',
     editor: 'bg-blue-500/20 text-blue-600',
     viewer: 'bg-muted text-muted-foreground',
@@ -68,9 +69,9 @@ export function UsersManagement({ initialUsers }: UsersManagementProps) {
           </thead>
           <tbody className="divide-y divide-border">
             {users.map((user) => {
-              const userRole = (user as any).role || 'viewer'
-              const badgeClass = roleBadgeColor[userRole as keyof typeof roleBadgeColor] || roleBadgeColor.viewer
-              const roleLabel = roleLabels[userRole as keyof typeof roleLabels] || 'Visualizador'
+              const userRole = user.role || 'viewer'
+              const badgeClass = roleBadgeColor[userRole] || roleBadgeColor.viewer
+              const roleLabel = roleLabels[userRole] || 'Visualizador'
               
               return (
                 <tr key={user.id} className="hover:bg-muted/50">

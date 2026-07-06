@@ -4,10 +4,11 @@ import { useState } from 'react'
 import { createUser } from '@/app/actions/users'
 import { useToast } from '@/hooks/use-toast'
 import { X, Loader2 } from 'lucide-react'
+import type { User } from '@/lib/db/schema'
 
 interface CreateUserModalProps {
   onClose: () => void
-  onUserCreated: (user: any) => void
+  onUserCreated: (user: User) => void
 }
 
 export function CreateUserModal({ onClose, onUserCreated }: CreateUserModalProps) {

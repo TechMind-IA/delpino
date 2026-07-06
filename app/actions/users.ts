@@ -44,39 +44,59 @@ export async function getAllUsers() {
   const userId = await getUserId()
   const currentUser = await db.select().from(user).where(eq(user.id, userId)).limit(1)
 
-  // Apenas admin pode ver todos os usuários
   if (!currentUser.length) throw new Error('User not found')
+  if (currentUser[0].role !== 'admin') throw new Error('Unauthorized - Admin only')
 
   return db.select().from(user).orderBy((u) => u.createdAt)
 }
 
 export async function createUser(data: { name: string; email: string; password: string; role?: 'admin' | 'editor' | 'viewer' }) {
   const userId = await getUserId()
+  const currentUser = await db.select().from(user).where(eq(user.id, userId)).limit(1)
 
-  // Validar se usuário atual pode criar novos usuários (seria admin)
-  if (!userId) throw new Error('Unauthorized')
-
-  // Usar Better Auth para criar novo usuário
-  const newUser = await auth.api.signUpEmail({
-    email: data.email,
-    password: data.password,
-    name: data.name,
-  })
-
-  // Atualizar role do usuário criado
-  if (newUser.user && data.role) {
-    await db.update(user)
-      .set({ role: data.role })
-      .where(eq(user.id, newUser.user.id))
+  if (!currentUser.length || currentUser[0].role !== 'admin') {
+    throw new Error('Unauthorized - Admin only')
   }
 
-  return newUser
+  // Usar Better Auth para criar novo usuário
+  const newUserResponse = await auth.api.signUpEmail({
+    body: {
+      email: data.email,
+      password: data.password,
+      name: data.name,
+    },
+  } as never)
+
+  const newUserData = newUserResponse as unknown as { user?: { id: string } }
+
+  if (!newUserData.user) {
+    throw new Error('Erro ao criar usuário')
+  }
+
+  // Atualizar role do usuário criado
+  if (data.role) {
+    await db.update(user)
+      .set({ role: data.role })
+      .where(eq(user.id, newUserData.user.id))
+  }
+
+  // Retornar o usuário completo do banco
+  const createdUser = await db.select().from(user).where(eq(user.id, newUserData.user.id)).limit(1)
+  if (!createdUser.length) {
+    throw new Error('Erro ao criar usuário')
+  }
+
+  return createdUser[0]
 }
 
 export async function deleteUser(targetUserId: string) {
   const userId = await getUserId()
+  const currentUser = await db.select().from(user).where(eq(user.id, userId)).limit(1)
 
-  // Não permitir deletar a si mesmo
+  if (!currentUser.length || currentUser[0].role !== 'admin') {
+    throw new Error('Unauthorized - Admin only')
+  }
+
   if (userId === targetUserId) throw new Error('Cannot delete your own account')
 
   await db.delete(user).where(eq(user.id, targetUserId))
@@ -116,9 +136,12 @@ export async function changePassword(oldPassword: string, newPassword: string) {
   try {
     // Usar Better Auth para mudar a senha
     await auth.api.changePassword({
-      newPassword,
-      revokeOtherSessions: true,
-    })
+      body: {
+        newPassword,
+        currentPassword: oldPassword,
+        revokeOtherSessions: true,
+      },
+    } as never)
 
     return { success: true, message: 'Senha alterada com sucesso' }
   } catch (error) {

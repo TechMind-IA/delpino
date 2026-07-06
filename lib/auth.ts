@@ -22,12 +22,16 @@ const trustedOrigins = [
 export const auth = betterAuth({
   baseURL,
   trustedOrigins: process.env.NODE_ENV === 'development' 
-    ? trustedOrigins.concat('*') // Permitir qualquer origem em desenvolvimento
+    ? trustedOrigins.concat('*')
     : trustedOrigins,
   database: new Pool({ connectionString: process.env.DATABASE_URL }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
+    requireEmailVerification: true,
+    sendVerificationEmail: async ({ user: u, token, url }: { user: { email: string; name: string }; token: string; url: string }) => {
+      const { sendVerificationEmail } = await import('@/lib/email')
+      await sendVerificationEmail(u.email, u.name, token, url)
+    },
   },
   ...(process.env.NODE_ENV === 'development' && {
     advanced: {

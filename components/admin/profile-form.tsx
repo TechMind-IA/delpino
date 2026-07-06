@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import { updateUserProfile, changePassword } from '@/app/actions/users'
 import { useToast } from '@/hooks/use-toast'
 import { Loader2 } from 'lucide-react'
+import type { User } from '@/lib/db/schema'
 
 interface ProfileFormProps {
-  user: any
+  user: User
 }
 
 export function ProfileForm({ user }: ProfileFormProps) {

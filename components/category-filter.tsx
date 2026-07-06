@@ -1,8 +1,8 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
-
-const CATEGORIES = ["Todos", "Fotografias", "Documentos", "Desenhos", "Mapas", "Outros"]
+import { getCategories } from "@/app/actions/categories"
 
 interface CategoryFilterProps {
   active: string
@@ -10,9 +10,19 @@ interface CategoryFilterProps {
 }
 
 export function CategoryFilter({ active, onChange }: CategoryFilterProps) {
+  const [categories, setCategories] = useState<string[]>([])
+
+  useEffect(() => {
+    getCategories().then((cats) => {
+      setCategories(["Todos", ...cats.map((c) => c.name)])
+    })
+  }, [])
+
+  if (categories.length === 0) return null
+
   return (
     <div className="flex flex-wrap items-center justify-center gap-2">
-      {CATEGORIES.map((category) => {
+      {categories.map((category) => {
         const isActive = active === category
         return (
           <button

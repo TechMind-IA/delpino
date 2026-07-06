@@ -1,4 +1,7 @@
 import { auth } from '@/lib/auth'
+import { db } from '@/lib/db'
+import { user } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
@@ -16,10 +19,11 @@ export async function requireAuth() {
 
 export async function requireRole(...allowedRoles: UserRole[]) {
   const session = await requireAuth()
-  const userRole = (session.user as any).role as UserRole || 'viewer'
+  
+  const result = await db.select({ role: user.role }).from(user).where(eq(user.id, session.user.id)).limit(1)
+  const userRole = (result[0]?.role || 'viewer') as UserRole
   
   if (!allowedRoles.includes(userRole)) {
-    // Redirecionar para admin com mensagem de permissão negada
     redirect('/admin?error=permission_denied')
   }
   

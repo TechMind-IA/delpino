@@ -1,17 +1,38 @@
 "use client"
 
 import { useState, type FormEvent } from "react"
+import { sendContactMessage, type ContactInput } from "@/app/actions/contact"
 
 export function ContactForm() {
-  const [submitted, setSubmitted] = useState(false)
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+  const [errorMessage, setErrorMessage] = useState("")
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Sem backend: apenas feedback visual.
-    setSubmitted(true)
+    setStatus("loading")
+    setErrorMessage("")
+
+    const form = e.currentTarget
+    const formData = new FormData(form)
+
+    const data: ContactInput = {
+      name: (formData.get("name") as string) || "",
+      email: (formData.get("email") as string) || "",
+      message: (formData.get("message") as string) || "",
+    }
+
+    const result = await sendContactMessage(data)
+
+    if (result.success) {
+      setStatus("success")
+      form.reset()
+    } else {
+      setStatus("error")
+      setErrorMessage(result.error || "Erro ao enviar mensagem.")
+    }
   }
 
-  if (submitted) {
+  if (status === "success") {
     return (
       <div className="rounded-lg border border-border bg-card p-8 text-center">
         <h2 className="font-serif text-2xl text-foreground">
@@ -22,7 +43,7 @@ export function ContactForm() {
         </p>
         <button
           type="button"
-          onClick={() => setSubmitted(false)}
+          onClick={() => setStatus("idle")}
           className="mt-6 text-sm text-foreground underline underline-offset-4 transition-opacity hover:opacity-70"
         >
           Enviar outra mensagem
@@ -75,11 +96,16 @@ export function ContactForm() {
         />
       </div>
 
+      {status === "error" && (
+        <p className="text-sm text-red-600">{errorMessage}</p>
+      )}
+
       <button
         type="submit"
-        className="h-11 w-full rounded-full bg-foreground px-6 text-sm font-medium text-background transition-opacity hover:opacity-90 sm:w-auto"
+        disabled={status === "loading"}
+        className="h-11 w-full rounded-full bg-foreground px-6 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
       >
-        Enviar
+        {status === "loading" ? "Enviando..." : "Enviar"}
       </button>
     </form>
   )

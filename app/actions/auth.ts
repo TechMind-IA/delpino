@@ -7,10 +7,11 @@ import { headers } from 'next/headers'
 import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { randomBytes } from 'crypto'
+import { sendPasswordResetEmail } from '@/lib/email'
 
 /**
  * Solicitar reset de senha
- * Gera token, salva no DB, retorna sucesso (não revela se email existe)
+ * Gera token, salva no DB, envia email (não revela se email existe)
  */
 export async function requestPasswordReset(email: string) {
   try {
@@ -22,6 +23,7 @@ export async function requestPasswordReset(email: string) {
     }
 
     const userId = userRecord[0].id
+    const userName = userRecord[0].name
     
     // Gerar token único com 32 bytes
     const token = randomBytes(32).toString('hex')
@@ -37,11 +39,13 @@ export async function requestPasswordReset(email: string) {
       expiresAt,
     })
 
+    // Enviar email de reset
+    const resetLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password/${token}`
+    await sendPasswordResetEmail(email, userName, token, resetLink)
+
     return {
       success: true,
       message: 'Se o email existir, um link de reset será enviado',
-      token, // Retornar para testes (remover em produção)
-      resetLink: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password/${token}`,
     }
   } catch (error) {
     console.error('[v0] Erro ao solicitar reset de senha:', error)
@@ -95,8 +99,8 @@ export async function resetPassword(token: string, newPassword: string) {
 
     // Usar Better Auth para atualizar a senha
     const result = await auth.api.resetPassword({
-      newPassword,
-    })
+      body: { newPassword },
+    } as never)
 
     // Limpar token após uso
     await db.delete(passwordResetToken).where(eq(passwordResetToken.token, token))
