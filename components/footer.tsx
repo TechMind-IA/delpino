@@ -51,7 +51,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-xs text-muted-foreground sm:flex-row">
+        <div className="mt-14 flex flex-col items-center justify-between gap-4 text-xs text-muted-foreground sm:flex-row">
           <p>
             &copy; {new Date().getFullYear()} Marco Digital de Delpino. Todos os
             direitos reservados.

@@ -47,7 +47,7 @@ export function Gallery({ items, search }: GalleryProps) {
     selectedIndex !== null ? filteredItems[selectedIndex] ?? null : null
 
   return (
-    <section id="galeria" className="mx-auto max-w-7xl px-6 pb-24 lg:px-8">
+    <section id="galeria" className="mx-auto max-w-[1600px] px-6 pb-24 lg:px-8">
       <div className="mb-10 flex flex-col items-center gap-6">
         <div className="text-center">
           <h2 className="font-serif text-3xl font-medium tracking-tight text-foreground">
