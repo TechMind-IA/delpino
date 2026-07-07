@@ -11,9 +11,10 @@ import type { User } from '@/lib/db/schema'
 
 interface UsersManagementProps {
   initialUsers: User[]
+  currentUserId: string
 }
 
-export function UsersManagement({ initialUsers }: UsersManagementProps) {
+export function UsersManagement({ initialUsers, currentUserId }: UsersManagementProps) {
   const router = useRouter()
   const toast = useToast()
   const [users, setUsers] = useState(initialUsers)
@@ -80,7 +81,7 @@ export function UsersManagement({ initialUsers }: UsersManagementProps) {
               const userRole = user.role || 'viewer'
               const badgeClass = roleBadgeColor[userRole] || roleBadgeColor.viewer
               const roleLabel = roleLabels[userRole] || 'Visualizador'
-              
+
               return (
                 <tr key={user.id} className="hover:bg-muted/50">
                   <td className="px-6 py-4 text-sm text-foreground">{user.name}</td>
@@ -94,23 +95,14 @@ export function UsersManagement({ initialUsers }: UsersManagementProps) {
                     {new Date(user.createdAt).toLocaleDateString('pt-BR')}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={() => setEditingUser(user)}
-                        className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                        title="Editar usuário"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(user.id)}
-                        disabled={deletingId === user.id}
-                        className="rounded p-1 text-destructive hover:bg-destructive/10 disabled:opacity-50"
-                        title="Remover usuário"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => handleDelete(user.id)}
+                      disabled={deletingId === user.id || user.id === currentUserId}
+                      className="rounded p-1 text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                      title={user.id === currentUserId ? 'Não é possível excluir o próprio usuário' : 'Remover usuário'}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </td>
                 </tr>
               )

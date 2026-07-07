@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { useEffect, useRef, useState, useCallback } from "react"
-import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCcw } from "lucide-react"
+import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Scan } from "lucide-react"
 import type { GalleryItem } from "@/lib/db/schema"
 
 interface GalleryModalProps {
@@ -15,8 +15,8 @@ interface GalleryModalProps {
 function DetailRow({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null
   return (
-    <div className="flex flex-col gap-0.5 border-t border-border py-3">
-      <dt className="text-[0.7rem] uppercase tracking-[0.18em] text-muted-foreground">
+              <div className="flex flex-col gap-1 py-4">
+      <dt className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
         {label}
       </dt>
       <dd className="text-sm leading-relaxed text-foreground">{value}</dd>
@@ -234,10 +234,10 @@ export function GalleryModal({ item, onClose, onPrev, onNext }: GalleryModalProp
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); resetZoom() }}
-              aria-label="Reset zoom"
+              aria-label="Resetar zoom"
               className="flex h-9 w-9 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm transition-colors hover:bg-background"
             >
-              <RotateCcw className="h-4 w-4" />
+              <Scan className="h-4 w-4" />
             </button>
           )}
         </div>
@@ -273,10 +273,10 @@ export function GalleryModal({ item, onClose, onPrev, onNext }: GalleryModalProp
         </div>
 
         <div className="flex flex-col overflow-y-auto p-5 sm:p-6 md:w-2/5 md:p-8">
-          <p className="text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
             {item.category}
           </p>
-          <h2 className="mt-2 font-serif text-xl leading-tight text-foreground sm:text-2xl">
+          <h2 className="mt-2 font-serif text-2xl leading-tight text-foreground sm:text-3xl">
             {item.title}
           </h2>
           {item.description && (
@@ -287,15 +287,15 @@ export function GalleryModal({ item, onClose, onPrev, onNext }: GalleryModalProp
           <dl className="mt-6">
             <DetailRow label="Época" value={item.datePeriod} />
             {item.tags && item.tags.length > 0 && (
-              <div className="flex flex-col gap-0.5 border-t border-border py-3">
-                <dt className="text-[0.7rem] uppercase tracking-[0.18em] text-muted-foreground">
+    <div className="flex flex-col gap-1 py-4">
+                <dt className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                   Tags
                 </dt>
-                <dd className="mt-1 flex flex-wrap gap-1">
+                <dd className="mt-1 flex flex-wrap gap-1.5">
                   {item.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+                      className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground"
                     >
                       {tag}
                     </span>
