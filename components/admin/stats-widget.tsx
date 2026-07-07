@@ -14,9 +14,14 @@ interface StatItem {
   label: string
   value: number
   icon: React.ComponentType<{ className?: string }>
+  category?: string
 }
 
-export function StatsWidget() {
+interface StatsWidgetProps {
+  onCategoryClick: (category: string) => void
+}
+
+export function StatsWidget({ onCategoryClick }: StatsWidgetProps) {
   const [stats, setStats] = useState<GalleryStats | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -32,9 +37,9 @@ export function StatsWidget() {
 
   const statsList: StatItem[] = [
     { label: 'Total de Imagens', value: stats.totalItems, icon: Image },
-    { label: 'Fotografias', value: stats.categories?.['Fotografias'] || 0, icon: FileText },
-    { label: 'Documentos', value: stats.categories?.['Documentos'] || 0, icon: Database },
-    { label: 'Desenhos', value: stats.categories?.['Desenhos'] || 0, icon: Calendar },
+    { label: 'Fotografias', value: stats.categories?.['Fotografias'] || 0, icon: FileText, category: 'Fotografias' },
+    { label: 'Documentos', value: stats.categories?.['Documentos'] || 0, icon: Database, category: 'Documentos' },
+    { label: 'Desenhos', value: stats.categories?.['Desenhos'] || 0, icon: Calendar, category: 'Desenhos' },
   ]
 
   return (
@@ -42,7 +47,11 @@ export function StatsWidget() {
       {statsList.map((stat) => {
         const IconComponent = stat.icon
         return (
-          <div key={stat.label} className="rounded-lg border border-border bg-muted/50 p-4">
+          <button
+            key={stat.label}
+            onClick={() => onCategoryClick(stat.category || 'Todos')}
+            className="rounded-lg border border-border bg-muted/50 p-4 text-left transition-colors hover:bg-muted"
+          >
             <div className="flex items-center gap-2">
               <IconComponent className="h-5 w-5 text-muted-foreground" />
               <span className="text-xs text-muted-foreground">{stat.label}</span>
@@ -50,7 +59,7 @@ export function StatsWidget() {
             <div className="mt-2 text-2xl font-bold text-foreground">
               {stat.value}
             </div>
-          </div>
+          </button>
         )
       })}
     </div>

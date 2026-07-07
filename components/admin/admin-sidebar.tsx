@@ -2,11 +2,10 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronUp, UserCog, User, ImageIcon, History, Users, LogOut, Menu, X } from 'lucide-react'
+import { ChevronUp, UserCog, User, ImageIcon, History, Users, LogOut, Menu, X, Sun, Moon } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { Logo } from '@/components/logo'
-import { ThemeToggle } from '@/components/theme-toggle'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { authClient } from '@/lib/auth-client'
 
@@ -22,6 +21,7 @@ export function AdminSidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [minhaAreaOpen, setMinhaAreaOpen] = useState(false)
   const [signOutOpen, setSignOutOpen] = useState(false)
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const minhaAreaRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -34,6 +34,24 @@ export function AdminSidebar() {
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [minhaAreaOpen])
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme') as 'light' | 'dark' | null
+    const initial = saved || 'light'
+    setTheme(initial)
+    if (initial === 'dark') document.documentElement.classList.add('dark')
+  }, [])
+
+  function toggleTheme() {
+    const next = theme === 'light' ? 'dark' : 'light'
+    setTheme(next)
+    if (next === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+    localStorage.setItem('theme', next)
+  }
 
   async function handleSignOut() {
     await authClient.signOut()
@@ -74,9 +92,8 @@ export function AdminSidebar() {
         )}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center justify-between px-6">
+        <div className="flex h-16 items-center px-6">
           <Logo />
-          <ThemeToggle />
         </div>
 
         {/* Navigation */}
@@ -112,6 +129,13 @@ export function AdminSidebar() {
             )}
           >
             <div className="flex flex-col px-3 py-3">
+              <button
+                onClick={() => { toggleTheme(); setMinhaAreaOpen(false) }}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                {theme === 'light' ? 'Modo escuro' : 'Modo claro'}
+              </button>
               <Link
                 href="/admin/profile"
                 onClick={() => { setSidebarOpen(false); setMinhaAreaOpen(false) }}

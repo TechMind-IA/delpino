@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { Plus, Pencil, Trash2, Image as ImageIcon } from 'lucide-react'
 import type { GalleryItem } from '@/lib/db/schema'
 import { deleteGalleryItem } from '@/app/actions/gallery'
-import { getCategories } from '@/app/actions/categories'
 import { ItemFormModal } from './item-form-modal'
 import { DeleteConfirmDialog } from '@/components/delete-confirm-dialog'
 import { useToast } from '@/hooks/use-toast'
@@ -18,19 +17,12 @@ interface AdminPanelProps {
 export function AdminPanel({ items: initialItems }: AdminPanelProps) {
   const toast = useToast()
   const [items, setItems] = useState(initialItems)
-  const [categories, setCategories] = useState<string[]>([])
+  const [filterCategory, setFilterCategory] = useState<string>('Todos')
   const [modalOpen, setModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<GalleryItem | null>(null)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<GalleryItem | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [filterCategory, setFilterCategory] = useState<string>('Todos')
-
-  useEffect(() => {
-    getCategories().then((cats) => {
-      setCategories(cats.map((c) => c.name))
-    })
-  }, [])
 
   const filtered =
     filterCategory === 'Todos'
@@ -86,18 +78,19 @@ export function AdminPanel({ items: initialItems }: AdminPanelProps) {
     <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Estatísticas */}
         <div className="mb-8">
-          <StatsWidget />
+          <StatsWidget onCategoryClick={setFilterCategory} />
         </div>
 
-        {/* Título e filtros */}
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Título */}
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
               <h1 className="font-serif text-2xl font-semibold text-foreground">
                 Acervo
               </h1>
               <p className="text-sm text-muted-foreground">
-                {items.length} {items.length === 1 ? 'item' : 'itens'} no total
+                {filtered.length} {filtered.length === 1 ? 'item' : 'itens'}
+                {filterCategory !== 'Todos' && ` em "${filterCategory}"`}
               </p>
             </div>
             <button
@@ -107,22 +100,6 @@ export function AdminPanel({ items: initialItems }: AdminPanelProps) {
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">Nova imagem</span>
             </button>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {['Todos', ...categories].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setFilterCategory(cat)}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  filterCategory === cat
-                    ? 'bg-foreground text-background'
-                    : 'border border-border text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
           </div>
         </div>
 
