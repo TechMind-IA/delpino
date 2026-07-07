@@ -14,7 +14,10 @@ export function CategoryFilter({ active, onChange }: CategoryFilterProps) {
 
   useEffect(() => {
     getCategories().then((cats) => {
-      setCategories(["Todos", ...cats.map((c) => c.name)])
+      const names = cats.map((c) => c.name)
+      if (names.length > 0) {
+        setCategories(["Todos", ...names])
+      }
     })
   }, [])
 
