@@ -1,16 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Plus, Pencil, Trash2, LogOut, Image as ImageIcon, Users, History, Settings, Layers } from 'lucide-react'
-import Link from 'next/link'
+import { Plus, Pencil, Trash2, Image as ImageIcon } from 'lucide-react'
 import type { GalleryItem } from '@/lib/db/schema'
 import { deleteGalleryItem } from '@/app/actions/gallery'
 import { getCategories } from '@/app/actions/categories'
-import { authClient } from '@/lib/auth-client'
 import { ItemFormModal } from './item-form-modal'
-import { Logo } from '@/components/logo'
-import { ThemeToggle } from '@/components/theme-toggle'
 import { DeleteConfirmDialog } from '@/components/delete-confirm-dialog'
 import { useToast } from '@/hooks/use-toast'
 import { StatsWidget } from './stats-widget'
@@ -21,7 +16,6 @@ interface AdminPanelProps {
 }
 
 export function AdminPanel({ items: initialItems }: AdminPanelProps) {
-  const router = useRouter()
   const toast = useToast()
   const [items, setItems] = useState(initialItems)
   const [categories, setCategories] = useState<string[]>([])
@@ -88,67 +82,8 @@ export function AdminPanel({ items: initialItems }: AdminPanelProps) {
     setModalOpen(false)
   }
 
-  async function handleSignOut() {
-    await authClient.signOut()
-    router.push('/sign-in')
-    router.refresh()
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <Logo />
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleNew}
-              className="flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
-            >
-              <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline">Nova imagem</span>
-            </button>
-            <ThemeToggle />
-            <Link
-              href="/admin/history"
-              title="Histórico"
-              className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <History className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/admin/users"
-              title="Gerenciar usuários"
-              className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <Users className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/admin/categories"
-              title="Gerenciar categorias"
-              className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <Layers className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/admin/profile"
-              title="Meu perfil"
-              className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <Settings className="h-4 w-4" />
-            </Link>
-            <button
-              onClick={handleSignOut}
-              title="Sair"
-              className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Estatísticas */}
         <div className="mb-8">
           <StatsWidget />
@@ -156,13 +91,22 @@ export function AdminPanel({ items: initialItems }: AdminPanelProps) {
 
         {/* Título e filtros */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="font-serif text-2xl font-semibold text-foreground">
-              Acervo
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {items.length} {items.length === 1 ? 'item' : 'itens'} no total
-            </p>
+          <div className="flex items-center gap-4">
+            <div>
+              <h1 className="font-serif text-2xl font-semibold text-foreground">
+                Acervo
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                {items.length} {items.length === 1 ? 'item' : 'itens'} no total
+              </p>
+            </div>
+            <button
+              onClick={handleNew}
+              className="flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+            >
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">Nova imagem</span>
+            </button>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -248,9 +192,8 @@ export function AdminPanel({ items: initialItems }: AdminPanelProps) {
             ))}
           </div>
         )}
-      </main>
 
-      {modalOpen && (
+        {modalOpen && (
         <ItemFormModal
           item={editingItem}
           onClose={() => setModalOpen(false)}

@@ -1,7 +1,6 @@
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { Navbar } from '@/components/navbar'
 import { CategoriesManagement } from '@/components/admin/categories-management'
 import { getCategories } from '@/app/actions/categories'
 
@@ -15,17 +14,12 @@ export default async function CategoriesPage() {
   const categories = await getCategories()
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <main className="flex-1 bg-background">
-        <div className="mx-auto max-w-7xl px-4 py-8">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-foreground">Gerenciar Categorias</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Crie e gerencie as categorias disponíveis para o acervo</p>
-          </div>
-          <CategoriesManagement initialCategories={categories} />
-        </div>
-      </main>
+    <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-foreground">Gerenciar Categorias</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Crie e gerencie as categorias disponíveis para o acervo</p>
+      </div>
+      <CategoriesManagement initialCategories={categories} />
     </div>
   )
 }

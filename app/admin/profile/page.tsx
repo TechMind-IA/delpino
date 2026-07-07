@@ -4,7 +4,6 @@ import { user } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { Navbar } from '@/components/navbar'
 import { ProfileForm } from '@/components/admin/profile-form'
 
 export default async function ProfilePage() {
@@ -15,17 +14,12 @@ export default async function ProfilePage() {
   if (!userProfile.length) redirect('/sign-in')
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <main className="flex-1 bg-background">
-        <div className="mx-auto max-w-2xl px-4 py-8">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-foreground">Meu Perfil</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Edite suas informações pessoais</p>
-          </div>
-          <ProfileForm user={userProfile[0]} />
-        </div>
-      </main>
+    <div className="mx-auto max-w-2xl px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-foreground">Meu Perfil</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Edite suas informações pessoais</p>
+      </div>
+      <ProfileForm user={userProfile[0]} />
     </div>
   )
 }

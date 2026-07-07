@@ -23,7 +23,7 @@ export function Navbar() {
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
         <Logo />
 
-        <ul className="hidden items-center gap-8 md:flex">
+        <ul className="hidden flex-1 items-center justify-center gap-8 md:flex">
           {links.map((link) => (
             <li key={link.href}>
               <Link
@@ -36,21 +36,23 @@ export function Navbar() {
           ))}
         </ul>
 
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <div className="hidden md:block">
-            <AuthButton />
-          </div>
-          <button
-            type="button"
-            className="flex h-10 w-10 items-center justify-center text-foreground md:hidden"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? "Fechar menu" : "Abrir menu"}
-            aria-expanded={open}
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+        <div className="hidden items-center gap-3 md:flex">
+          <AuthButton />
         </div>
+
+        <div className="md:ml-6">
+          <ThemeToggle />
+        </div>
+
+        <button
+          type="button"
+          className="flex h-10 w-10 items-center justify-center text-foreground md:hidden"
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={open}
+        >
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </nav>
 
       <div
