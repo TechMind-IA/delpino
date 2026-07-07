@@ -75,10 +75,10 @@ CREATE TABLE IF NOT EXISTS "gallery_items" (
 
 CREATE TABLE IF NOT EXISTS "audit_log" (
   id SERIAL PRIMARY KEY,
-  "userId" TEXT NOT NULL REFERENCES "user"(id),
+  "userId" TEXT REFERENCES "user"(id),
   action TEXT NOT NULL,
   entity_type TEXT NOT NULL,
-  entity_id INTEGER,
+  entity_id TEXT,
   entity_name TEXT,
   changes JSONB,
   "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
@@ -111,4 +111,5 @@ CREATE INDEX IF NOT EXISTS idx_gallery_category ON "gallery_items"(category);
 CREATE INDEX IF NOT EXISTS idx_gallery_createdAt ON "gallery_items"("createdAt" DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_log_userId ON "audit_log"("userId");
 CREATE INDEX IF NOT EXISTS idx_audit_log_createdAt ON "audit_log"("createdAt" DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_log_entityType ON "audit_log"(entity_type);
 CREATE INDEX IF NOT EXISTS idx_password_reset_token ON "password_reset_tokens"(token);

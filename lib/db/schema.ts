@@ -1,6 +1,5 @@
 import {
   boolean,
-  integer,
   json,
   pgTable,
   serial,
@@ -72,10 +71,10 @@ export const galleryItems = pgTable('gallery_items', {
 
 export const auditLog = pgTable('audit_log', {
   id: serial('id').primaryKey(),
-  userId: text('userId').notNull().references(() => user.id),
+  userId: text('userId').references(() => user.id),
   action: text('action').notNull(), // 'create', 'update', 'delete'
   entityType: text('entity_type').notNull(), // 'gallery_item', 'user', etc
-  entityId: integer('entity_id'),
+  entityId: text('entity_id'),
   entityName: text('entity_name'),
   changes: json('changes'), // JSONB com as mudanças
   createdAt: timestamp('createdAt').notNull().defaultNow(),

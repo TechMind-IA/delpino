@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { deleteUser } from '@/app/actions/users'
 import { useToast } from '@/hooks/use-toast'
-import { Trash2, Plus } from 'lucide-react'
+import { Trash2, Plus, Pencil } from 'lucide-react'
 import { CreateUserModal } from './create-user-modal'
+import { EditUserModal } from './edit-user-modal'
 import type { User } from '@/lib/db/schema'
 
 interface UsersManagementProps {
@@ -16,7 +17,8 @@ export function UsersManagement({ initialUsers }: UsersManagementProps) {
   const router = useRouter()
   const toast = useToast()
   const [users, setUsers] = useState(initialUsers)
-  const [modalOpen, setModalOpen] = useState(false)
+  const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState<User | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   async function handleDelete(userId: string) {
@@ -35,8 +37,14 @@ export function UsersManagement({ initialUsers }: UsersManagementProps) {
 
   function handleUserCreated(newUser: User) {
     setUsers((prev) => [newUser, ...prev])
-    setModalOpen(false)
+    setCreateModalOpen(false)
     toast.success('Usuário criado com sucesso')
+  }
+
+  function handleUserUpdated(updatedUser: User) {
+    setUsers((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)))
+    setEditingUser(null)
+    toast.success('Usuário atualizado com sucesso')
   }
 
   const roleLabels: Record<string, string> = { admin: 'Admin', editor: 'Editor', viewer: 'Visualizador' }
@@ -49,7 +57,7 @@ export function UsersManagement({ initialUsers }: UsersManagementProps) {
   return (
     <div className="space-y-6">
       <button
-        onClick={() => setModalOpen(true)}
+        onClick={() => setCreateModalOpen(true)}
         className="flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
       >
         <Plus className="h-4 w-4" />
@@ -86,14 +94,23 @@ export function UsersManagement({ initialUsers }: UsersManagementProps) {
                     {new Date(user.createdAt).toLocaleDateString('pt-BR')}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => handleDelete(user.id)}
-                      disabled={deletingId === user.id}
-                      className="rounded p-1 text-destructive hover:bg-destructive/10 disabled:opacity-50"
-                      title="Remover usuário"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => setEditingUser(user)}
+                        className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        title="Editar usuário"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(user.id)}
+                        disabled={deletingId === user.id}
+                        className="rounded p-1 text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                        title="Remover usuário"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               )
@@ -102,10 +119,18 @@ export function UsersManagement({ initialUsers }: UsersManagementProps) {
         </table>
       </div>
 
-      {modalOpen && (
+      {createModalOpen && (
         <CreateUserModal
-          onClose={() => setModalOpen(false)}
+          onClose={() => setCreateModalOpen(false)}
           onUserCreated={handleUserCreated}
+        />
+      )}
+
+      {editingUser && (
+        <EditUserModal
+          user={editingUser}
+          onClose={() => setEditingUser(null)}
+          onUserUpdated={handleUserUpdated}
         />
       )}
     </div>

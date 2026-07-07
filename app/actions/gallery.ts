@@ -3,9 +3,10 @@
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { galleryItems } from '@/lib/db/schema'
-import { and, desc, eq } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
+import { createAuditLog } from './audit'
 
 async function requireAuth() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -51,6 +52,14 @@ export async function createGalleryItem(data: {
 
   revalidatePath('/')
   revalidatePath('/admin')
+
+  await createAuditLog({
+    action: 'create',
+    entityType: 'gallery_item',
+    entityId: String(result[0].id),
+    entityName: data.title,
+  })
+
   return result[0]
 }
 
@@ -80,15 +89,31 @@ export async function updateGalleryItem(
 
   revalidatePath('/')
   revalidatePath('/admin')
+
+  await createAuditLog({
+    action: 'update',
+    entityType: 'gallery_item',
+    entityId: String(id),
+    entityName: data.title,
+  })
 }
 
 export async function deleteGalleryItem(id: number) {
   await requireAuth()
 
+  const item = await getGalleryItem(id)
+
   await db.delete(galleryItems).where(eq(galleryItems.id, id))
 
   revalidatePath('/')
   revalidatePath('/admin')
+
+  await createAuditLog({
+    action: 'delete',
+    entityType: 'gallery_item',
+    entityId: String(id),
+    entityName: item?.title,
+  })
 }
 
 export async function getGalleryStats() {

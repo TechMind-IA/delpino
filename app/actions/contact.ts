@@ -2,6 +2,7 @@
 
 import { z } from 'zod'
 import { Resend } from 'resend'
+import { createAuditLog } from './audit'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -79,6 +80,13 @@ export async function sendContactMessage(data: ContactInput) {
       replyTo: email,
       subject: `Contato: ${name}`,
       html,
+    })
+
+    await createAuditLog({
+      action: 'create',
+      entityType: 'contact_message',
+      entityName: name,
+      changes: { email, message },
     })
 
     return {

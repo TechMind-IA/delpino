@@ -25,6 +25,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    if (name.trim().split(/\s+/).length < 2) {
+      toast.error('Erro', 'Nome deve conter nome e sobrenome')
+      return
+    }
+
     setIsLoading(true)
 
     try {

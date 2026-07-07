@@ -37,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${cormorant.variable} bg-background`}>
+    <html lang="pt-BR" className={`${inter.variable} ${cormorant.variable} bg-background`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

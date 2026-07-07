@@ -16,7 +16,7 @@ export async function GET() {
 
   await auth.api.signUpEmail({
     body: {
-      name: 'Admin',
+      name: 'Admin Delpino',
       email: 'admin@delpino.com',
       password: 'delpino2024',
     },

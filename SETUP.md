@@ -139,6 +139,25 @@ Aqui você pode:
 1. Verifique se `AWS_S3_BUCKET_NAME` e `AWS_REGION` estão corretos
 2. Confirme que o next.config.mjs permite imagens do S3 (já configurado)
 
+## 🔄 Migração (Bancos Existentes)
+
+Se você já possui o banco criado com a versão anterior, execute manualmente no Neon:
+
+```sql
+-- Alterar entity_id de INTEGER para TEXT
+ALTER TABLE "audit_log" ALTER COLUMN entity_id TYPE TEXT USING entity_id::TEXT;
+
+-- Tornar userId nullable (para ações de sistema)
+ALTER TABLE "audit_log" ALTER COLUMN "userId" DROP NOT NULL;
+```
+
+Ou recrie o banco do zero com `scripts/init-db.sql`.
+
+### O que mudou na v2
+- `audit_log.entity_id`: de `INTEGER` para `TEXT` (suporta IDs de usuários)
+- `audit_log.userId`: agora aceita `NULL` (para ações sem usuário logado)
+- Índice adicional em `entity_type` para melhor performance
+
 ## 📦 Estrutura Importante
 
 ```

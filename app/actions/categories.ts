@@ -5,6 +5,7 @@ import { categories } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { requireRole } from '@/lib/auth-utils'
+import { createAuditLog } from './audit'
 
 export async function getCategories() {
   return await db.select().from(categories).orderBy(categories.name)
@@ -28,6 +29,14 @@ export async function createCategory(data: { name: string; description?: string 
 
   revalidatePath('/admin')
   revalidatePath('/admin/categories')
+
+  await createAuditLog({
+    action: 'create',
+    entityType: 'category',
+    entityId: String(result[0].id),
+    entityName: data.name,
+  })
+
   return result[0]
 }
 
@@ -45,14 +54,31 @@ export async function updateCategory(id: number, data: { name?: string; descript
 
   revalidatePath('/admin')
   revalidatePath('/admin/categories')
+
+  await createAuditLog({
+    action: 'update',
+    entityType: 'category',
+    entityId: String(id),
+    entityName: data.name || result[0]?.name,
+  })
+
   return result[0]
 }
 
 export async function deleteCategory(id: number) {
   await requireRole('admin')
 
+  const item = await db.select().from(categories).where(eq(categories.id, id)).limit(1)
+
   await db.delete(categories).where(eq(categories.id, id))
 
   revalidatePath('/admin')
   revalidatePath('/admin/categories')
+
+  await createAuditLog({
+    action: 'delete',
+    entityType: 'category',
+    entityId: String(id),
+    entityName: item[0]?.name,
+  })
 }
