@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Pencil, Trash2, Image as ImageIcon } from 'lucide-react'
+import { Plus, Pencil, Trash2, Image as ImageIcon, ChevronDown } from 'lucide-react'
 import type { GalleryItem } from '@/lib/db/schema'
 import { deleteGalleryItem } from '@/app/actions/gallery'
 import { ItemFormModal } from './item-form-modal'
@@ -23,6 +23,11 @@ export function AdminPanel({ items: initialItems }: AdminPanelProps) {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<GalleryItem | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [statsOpen, setStatsOpen] = useState(false)
+
+  useEffect(() => {
+    setStatsOpen(window.innerWidth >= 768)
+  }, [])
 
   const filtered =
     filterCategory === 'Todos'
@@ -78,7 +83,25 @@ export function AdminPanel({ items: initialItems }: AdminPanelProps) {
     <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Estatísticas */}
         <div className="mb-8">
-          <StatsWidget onCategoryClick={setFilterCategory} />
+          <button
+            type="button"
+            onClick={() => setStatsOpen((v) => !v)}
+            className="mb-3 flex w-full items-center justify-between rounded-lg border border-border bg-muted/50 px-4 py-2.5 text-left md:hidden"
+          >
+            <span className="text-sm font-medium text-foreground">Estatísticas</span>
+            <ChevronDown
+              className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
+                statsOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              statsOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+            }`}
+          >
+            <StatsWidget onCategoryClick={setFilterCategory} />
+          </div>
         </div>
 
         {/* Título */}
@@ -149,7 +172,7 @@ export function AdminPanel({ items: initialItems }: AdminPanelProps) {
                 </div>
 
                 {/* Ações */}
-                <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="absolute right-2 top-2 flex gap-1 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
                   <button
                     onClick={() => handleEdit(item)}
                     className="rounded-lg bg-background/90 p-1.5 text-foreground shadow backdrop-blur transition-colors hover:bg-background"

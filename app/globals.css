@@ -49,6 +49,10 @@
 
 :root {
   color-scheme: light;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
   /* Papel antigo: creme quente com toque sépia */
   --background: oklch(0.955 0.018 88);
   --foreground: oklch(0.22 0.025 55);

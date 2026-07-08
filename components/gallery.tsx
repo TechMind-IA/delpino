@@ -78,6 +78,8 @@ export function Gallery({ items, search }: GalleryProps) {
         onClose={() => setSelectedIndex(null)}
         onPrev={() => showRelative(-1)}
         onNext={() => showRelative(1)}
+        currentIndex={selectedIndex ?? undefined}
+        totalCount={filteredItems.length}
       />
     </section>
   )
